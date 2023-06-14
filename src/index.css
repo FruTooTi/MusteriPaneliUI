@@ -1,0 +1,92 @@
+/* General Properties */
+
+body{
+    background-color: #f7f7f7;
+    margin: 0;
+}
+
+#root{
+    display: flex;
+    flex-direction: column;
+}
+
+.container{
+    margin-top: 20px;
+}
+
+/* */
+
+/* Navbar Properties */
+
+.navbar{
+    background-color: #ffffff;
+    width: 100%;
+    height: 65px;
+    margin: 0px;
+    padding: 0px;
+    display: flex;
+}
+
+.navButtons{
+    margin-left: auto;
+    display: flex;
+    height: 100%;
+}
+
+.navButton{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 100%;
+}
+
+.navButton:hover{
+    background-color: black;
+}
+
+.navButton:hover > a{
+    color: white;
+}
+
+a{
+    text-decoration: none;
+    color: black;
+    font-size: 1.2rem;
+}
+table.table tr{
+    line-height: 30px;
+}
+
+table.table td{
+    max-width: 90px;
+    overflow-wrap: break-word;
+}
+
+table.table{
+    border-radius: 250px;
+    margin-bottom: 0;
+}
+
+/* */
+
+/* Table Properties */
+
+.tbl-container{
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.actions-panel > svg{
+    margin: 10px;
+}
+
+/* */
+
+/* Form Properties */
+
+.frm-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
