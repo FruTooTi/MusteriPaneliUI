@@ -6,7 +6,7 @@ const CustomerContext = createContext();
 const CustomerContextProvider = (props) => {
   const NavigatePage = useNavigate();
   const [Customers, setCustomers] = useState([]);
-  const [Refresh, setRefresh] = useState(false);
+  const [Refresh, setRefresh] = useState({});
 
   useEffect(() => {
     async function fetchData(){
@@ -16,16 +16,23 @@ const CustomerContextProvider = (props) => {
     fetchData();
   }, [Refresh]);
 
-  const AddCustomer = async (data) => {
-    const response = await fetch("https://localhost:44378/api/Musteri", {
+  const AddCustomer = async (data, callback) => {
+    await fetch("https://localhost:44378/api/Musteri", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(data)
+    }).then((response) => {
+      if(response.status !== 200)
+        response.json().then((data) => {
+          callback(data.error.validationErrors);
+      })
+      else{
+        setRefresh({});
+        NavigatePage("/table");
+      }
     });
-    setRefresh(true);
-    NavigatePage("/table");
   }
 
   const DeleteCustomer = async (id) => {
@@ -35,8 +42,28 @@ const CustomerContextProvider = (props) => {
     setCustomers(Customers.filter((customer) => customer.id !== id));
   }
 
+  const UpdateCustomer = async (data, callback) => {
+    await fetch(`https://localhost:44378/api/Musteri/${data.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    }).then((response) => {
+      if(response.status !== 200)
+        response.json().then((data) => {
+          callback.setErrors(data.error.validationErrors);
+        })
+      else{
+        callback.handleClose();
+        setRefresh({});
+        NavigatePage("/table");
+      }
+    });
+  }
+
     return(
-        <CustomerContext.Provider value={{Customers, AddCustomer, DeleteCustomer}}>
+        <CustomerContext.Provider value={{Customers, AddCustomer, DeleteCustomer, UpdateCustomer}}>
             {props.children}
         </CustomerContext.Provider>
     )

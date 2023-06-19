@@ -4,8 +4,9 @@ import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { CustomerContext } from "./contexts/CustomerContext";
 import { Modal, Button } from "react-bootstrap";
+import EditCustomers from "./EditCustomers";
 
-const Customer = ({customer, index}) => {
+const Customer = ({data, index}) => {
     const {DeleteCustomer} = useContext(CustomerContext);
     const [show, setShow] = useState(false);
 
@@ -14,30 +15,30 @@ const Customer = ({customer, index}) => {
 
     const HandleDelete = (e) => {
         e.preventDefault();
-        DeleteCustomer(customer.id);
+        DeleteCustomer(data.id);
     }
 
     return(
         <>
         <tr scope="row">
             <th>{index}</th>
-            <td>{customer.isim + " " + customer.soyisim}</td>
-            <td>{customer.tc}</td>
-            <td>{customer.iletisim.map((iletisim) => {
+            <td>{data.isim + " " + data.soyisim}</td>
+            <td>{data.tc}</td>
+            <td>{data.iletisim.map((iletisim) => {
                 return <p>{iletisim.email}</p>
             })}
             </td>
-            <td>{customer.iletisim.map((iletisim) => {
+            <td>{data.iletisim.map((iletisim) => {
                 return iletisim.telefon.map((telefon) => {
                     return <p>{`${telefon.turAciklamasi}: ${telefon.numara}`}</p>
                 })
             })}
             </td>
-            <td>{customer.adres.map((adres) => {
+            <td>{data.adres.map((adres) => {
                 return <p>{`${adres.turAciklamasi}: ${adres.aciklama}`}</p>
             })}
             </td>
-            <td>{customer.odeme.map((odeme) => {
+            <td>{data.odeme.map((odeme) => {
                 return <p>{odeme.turAciklamasi}</p>
             })}
             </td>
@@ -50,15 +51,9 @@ const Customer = ({customer, index}) => {
             <Modal.Header closeButton>
             <Modal.Title>Modal heading</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
-            <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-                Close
-            </Button>
-            <Button variant="primary" onClick={handleClose}>
-                Save Changes
-            </Button>
-            </Modal.Footer>
+            <Modal.Body>
+                <EditCustomers customerData={data} handleClose={handleClose}/>
+            </Modal.Body>
         </Modal>    
         </>
     )

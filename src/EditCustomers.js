@@ -4,26 +4,18 @@ import { CategoryContext } from "./contexts/CategoryContext";
 import { CustomerContext } from "./contexts/CustomerContext";
 import Validator from "./Validator";
 
-const AddCustomers = () => {
+const EditCustomers = ({ customerData, handleClose }) => {
     const categories = useContext(CategoryContext);
-    const { AddCustomer } = useContext(CustomerContext);
-    console.log(categories);
+    const { UpdateCustomer } = useContext(CustomerContext);
+    console.log(customerData);
 
-    const [customer, setCustomer] = useState({
-        "isim": "",
-        "soyisim": "",
-        "tc": "",
-        "iletisim": [
-        ],
-        "adres": [
-        ],
-        "odeme": [
-        ]
-    });
+    const [customer, setCustomer] = useState(customerData);
 
-    const [adresCount, setAdresCount] = useState(0);
-    const [odemeCount, setOdemeCount] = useState(0);
-    const [iletisimCount, setIletisimCount] = useState([]);
+    const [adresCount, setAdresCount] = useState(customerData.adres.length);
+    const [odemeCount, setOdemeCount] = useState(customerData.odeme.length);
+    const [iletisimCount, setIletisimCount] = useState(customerData.iletisim.map((iltsm) => {
+        return iltsm.telefon.length;
+    }));
     const [errors, setErrors] = useState(null);
     const adres = [];
     const odeme = [];
@@ -66,7 +58,7 @@ const AddCustomers = () => {
         <div id={`telefon${i}-${k}`} key={`telefonContainer${i}-${k}`}>
             <Form.Group className="mb-3" key={`telefonType${i}-${k}`}>
                 <Form.Label>Telefon Türü</Form.Label>
-                <Form.Select onChange={(e) => HandleTelefon(e)} iletisimindex={i} telefonIndex={k} defaultValue={customer.iletisim[i].telefon[k].tur}>
+                <Form.Select onChange={(e) => HandleTelefon(e)} iletisimindex={i} telefonindex={k} defaultValue={customer.iletisim[i].telefon[k].tur}>
                     {categories.phoneType.map((type, index) => {
                         return <option key={`telefonOption${i}-${index}`} value={type.id}>{type.aciklama}</option>
                     })}
@@ -75,7 +67,7 @@ const AddCustomers = () => {
 
             <Form.Group className="mb-3" key={`telefonDescription${i}`}>
                 <Form.Label>Numara</Form.Label>
-                <Form.Control type="text" placeholder="Numara*" iletisimindex={i} telefonIndex={k} value={customer.iletisim[i].telefon[k].numara} onChange={(e) => HandleTelefon(e)}/>
+                <Form.Control type="text" placeholder="Numara*" iletisimindex={i} telefonindex={k} value={customer.iletisim[i].telefon[k].numara} onChange={(e) => HandleTelefon(e)}/>
                 <Validator error={errors} inputId={`iletisim[${i}].telefon[${k}].numara`}/>
             </Form.Group>
 
@@ -157,13 +149,17 @@ const AddCustomers = () => {
     const AppendTelefon = (e) => {
         let targetIndex = e.target.getAttribute("index");
         let updatedIletisim = [...customer.iletisim];
-        console.log(updatedIletisim[targetIndex].telefon);
-        updatedIletisim[targetIndex].telefon.push(
+        let targetIletisim = {...updatedIletisim[targetIndex]};
+        let telefon = [...targetIletisim.telefon];
+        console.log(telefon);
+        telefon.push(
             {
                 tur: categories.phoneType[0].id,
                 numara: ""
             }
         );
+        targetIletisim.telefon = telefon;
+        updatedIletisim[targetIndex] = targetIletisim;
         setCustomer({...customer, iletisim: updatedIletisim});
 
         let iletisimCnt = [...iletisimCount];
@@ -202,12 +198,12 @@ const AddCustomers = () => {
     }
 
     const DeleteTelefon = (e) => {
-        let telefonIndex = e.target.getAttribute("telefonindex");
+        let telefonindex = e.target.getAttribute("telefonindex");
         let iletisimIndex = e.target.getAttribute("iletisimindex");
         let updatedIletisim = [...customer.iletisim];
-        updatedIletisim[iletisimIndex].telefon.splice(telefonIndex, 1);
+        updatedIletisim[iletisimIndex].telefon.splice(telefonindex, 1);
         setCustomer({...customer, iletisim: updatedIletisim});
-        iletisim[iletisimIndex][1].splice(telefonIndex, 1);
+        iletisim[iletisimIndex][1].splice(telefonindex, 1);
         let updatedIletisimCount = [...iletisimCount];
         updatedIletisimCount[iletisimIndex]--;
         setIletisimCount(updatedIletisimCount);
@@ -233,7 +229,7 @@ const AddCustomers = () => {
 
     const HandleIletisim = (e) => {
         let iletisim = [...customer.iletisim];
-        let item = iletisim[e.target.getAttribute("index")];
+        let item = {...iletisim[e.target.getAttribute("index")]};
         item.email = e.target.value;
         iletisim[e.target.getAttribute("index")] = item;
         setCustomer({...customer, iletisim: iletisim});
@@ -241,20 +237,24 @@ const AddCustomers = () => {
 
     const HandleTelefon = (e) => {
         let iletisimIndex = e.target.getAttribute("iletisimindex");
-        let telefonIndex = e.target.getAttribute("telefonindex");
+        let telefonindex = e.target.getAttribute("telefonindex");
         let iletisim = [...customer.iletisim];
-        let item = iletisim[iletisimIndex];
+        let item = {...iletisim[iletisimIndex]};
+        let telefon = [...item.telefon];
+        let target = {...telefon[telefonindex]};
         if(e.target.type === "text")
-            item.telefon[telefonIndex].numara = e.target.value;
+            target.numara = e.target.value;
         else if(e.target.type === "select-one")
-            item.telefon[telefonIndex].tur = e.target.value;
+            target.tur = e.target.value;
+        telefon[telefonindex] = target;
+        item.telefon = telefon;
         iletisim[iletisimIndex] = item;
         setCustomer({...customer, iletisim: iletisim});
     }
 
     const HandleAdres = (e) => {
         let adres = [...customer.adres];
-        let item = adres[e.target.getAttribute("index")];
+        let item = {...adres[e.target.getAttribute("index")]};
         if(e.target.type === "text")
             item.aciklama = e.target.value;
         else if(e.target.type === "select-one")
@@ -281,14 +281,14 @@ const AddCustomers = () => {
     const HandleSubmit = async (e) => {
         console.log(customer);
         e.preventDefault();
-        await AddCustomer(customer, setErrors);
+        await UpdateCustomer(customer, {handleClose, setErrors});
     }
 
     return(
         <div className="container frm-container">
             <Card style={{width: '30rem'}}>
                 <Card.Body>
-                    <Card.Title>Add Customer</Card.Title>
+                    <Card.Title>Müşteri Düzenle</Card.Title>
                     <Form>
                         <Form.Group className="mb-3" controlId="isim">
                             <Form.Label>Isim</Form.Label>
@@ -339,9 +339,9 @@ const AddCustomers = () => {
 
                         <div className="d-grid gap-2" id="submit">
                             <Button variant="success" type="submit" onClick={(e) => {
-                                    HandleSubmit(e);
+                                HandleSubmit(e)
                                 }}>
-                                Ekle
+                                Düzenle
                             </Button>
                         </div>
                     </Form>
@@ -351,4 +351,4 @@ const AddCustomers = () => {
     )
 }
 
-export default AddCustomers;
+export default EditCustomers;

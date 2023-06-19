@@ -25,7 +25,7 @@ const CustomerTable = () => {
                         </thead>
                         <tbody>
                             {props.Customers.map((customer, index) => {
-                                return <Customer key={index} customer={customer} index={index}/>
+                                return <Customer key={index} data={customer} index={index}/>
                             }
                             )}
                         </tbody>
